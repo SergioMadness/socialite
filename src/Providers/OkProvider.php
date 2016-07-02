@@ -17,14 +17,19 @@ class OkProvider extends AbstractProvider implements ProviderInterface
     /**
      * Get profile method name
      */
-    const METHOD_GET_PROFILE = 'account.getProfileInfo';
+    const METHOD_GET_PROFILE = 'users.getLoggedInUser';
+
+    /**
+     * Get user method name
+     */
+    const METHOD_GET_USER = 'users.getInfo';
 
     /**
      * The base VK URL.
      *
      * @var string
      */
-    protected $apiUrl = 'https://api.ok.ru';
+    protected $apiUrl = 'https://api.ok.ru/fb.do';
 
     /**
      * The user fields being requested.
@@ -40,7 +45,7 @@ class OkProvider extends AbstractProvider implements ProviderInterface
      *
      * @var array
      */
-    protected $scopes = ['email'];
+    protected $scopes = ['VALUABLE_ACCESS'];
 
     /**
      * Display the dialog in a popup view.
@@ -62,6 +67,21 @@ class OkProvider extends AbstractProvider implements ProviderInterface
      * @var string
      */
     protected $accessTokenUrl = 'https://api.ok.ru/oauth/token.do';
+
+    /**
+     * Public key
+     *
+     * @var string
+     */
+    protected $publicKey = '';
+
+    public function __construct(\Symfony\Component\HttpFoundation\Request $request,
+                                array $config = [])
+    {
+        parent::__construct($request, $config);
+
+        $this->publicKey = $config['public_key'];
+    }
 
     /**
      * {@inheritdoc}
@@ -89,8 +109,11 @@ class OkProvider extends AbstractProvider implements ProviderInterface
      */
     protected function invokeMethod($methodName, $token, array $params = [])
     {
-        $params['access_token'] = $token;
-        $response = $this->getHttpClient()->get($this->apiUrl.'/'.$methodName,
+        $params['application_key'] = $this->publicKey;
+        $params['method']          = $methodName;
+        $params['sig']             = $this->createSignature($params, $token);
+        $params['access_token']    = $token;
+        $response                  = $this->getHttpClient()->get($this->apiUrl,
             [
             'query' => $params,
             'headers' => [
@@ -102,6 +125,23 @@ class OkProvider extends AbstractProvider implements ProviderInterface
     }
 
     /**
+     * Create signature
+     *
+     * @param array $params
+     * @return string
+     */
+    protected function createSignature(array $params, $token)
+    {
+        $result = '';
+        ksort($params);
+        foreach ($params as $key => $value) {
+            $result.=$key.'='.$value;
+        }
+        $result.=md5($token.$this->clientSecret);
+        return strtolower(md5($result));
+    }
+
+    /**
      * Get the access token for the given code.
      *
      * @param string $code
@@ -110,7 +150,7 @@ class OkProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = $this->getHttpClient()->get($this->getTokenUrl(),
+        $response = $this->getHttpClient()->post($this->getTokenUrl(),
             [
             'query' => $this->getTokenFields($code),
             'verify' => false,
@@ -125,12 +165,12 @@ class OkProvider extends AbstractProvider implements ProviderInterface
      *
      * @return array
      */
-//    protected function getTokenFields($code)
-//    {
-//        $result               = parent::getTokenFields($code);
-//        $result['grant_type'] = 'client_credentials';
-//        return $result;
-//    }
+    protected function getTokenFields($code)
+    {
+        $result               = parent::getTokenFields($code);
+        $result['grant_type'] = 'authorization_code';
+        return $result;
+    }
 
     /**
      * {@inheritdoc}
@@ -145,10 +185,15 @@ class OkProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        return $this->invokeMethod(self::METHOD_GET_PROFILE, $token->getToken(),
-                [
-                'fields' => implode(',', $this->fields)
+        $userId = $this->invokeMethod(self::METHOD_GET_PROFILE,
+            $token->getToken());
+
+        $userInfo = $this->invokeMethod(self::METHOD_GET_USER,
+            $token->getToken(), [
+            'uids' => $userId
         ]);
+
+        return $userInfo;
     }
 
     /**
