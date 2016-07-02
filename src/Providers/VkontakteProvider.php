@@ -104,7 +104,8 @@ class VkontakteProvider extends AbstractProvider implements ProviderInterface
             'query' => $params,
             'headers' => [
                 'Accept' => 'application/json',
-            ]
+            ],
+            'verify' => false,
         ]);
         return json_decode($response->getBody(), true);
     }
@@ -121,9 +122,26 @@ class VkontakteProvider extends AbstractProvider implements ProviderInterface
         $response = $this->getHttpClient()->get($this->getTokenUrl(),
             [
             'query' => $this->getTokenFields($code),
+            'verify' => false,
         ]);
 
         return $this->parseAccessToken($response->getBody());
+    }
+
+    /**
+     * Get the POST fields for the token request.
+     *
+     * @param string $code
+     *
+     * @return array
+     */
+    protected function getTokenFields($code)
+    {
+        $result = parent::getTokenFields($code);
+
+        $result['grant_type'] = 'client_credentials';
+
+        return $result;
     }
 
     /**
@@ -131,10 +149,7 @@ class VkontakteProvider extends AbstractProvider implements ProviderInterface
      */
     protected function parseAccessToken($body)
     {
-        $token = [];
-        parse_str($body, $token);
-
-        return new AccessToken($token);
+        return new AccessToken(json_decode($body->getContents(), true));
     }
 
     /**
