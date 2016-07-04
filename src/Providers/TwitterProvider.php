@@ -20,7 +20,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
     const METHOD_VERIFY_CREDENTIALS = '/account/verify_credentials.json';
 
     /**
-     * The base VK URL.
+     * The base Twitter URL.
      *
      * @var string
      */
@@ -105,7 +105,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
     /**
      * {@inheritdoc}
      */
-    protected function getAuthUrl()
+    protected function getAuthUrl($state)
     {
         $responseParams = [];
         parse_str($this->invokeMethod($this->requestTokenUrl), $responseParams);
@@ -151,8 +151,6 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
 
     /**
      * Get the access token for the given code.
-     *
-     * @param string $code
      *
      * @return \Overtrue\Socialite\AccessToken
      */
@@ -208,18 +206,6 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
             'avatar' => $avatar,
             'avatar_original' => str_replace('_normal', '', $avatar),
         ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getCodeFields($state = null)
-    {
-        $fields = parent::getCodeFields($state);
-        if ($this->popup) {
-            $fields['display'] = 'popup';
-        }
-        return $fields;
     }
 
     /**
