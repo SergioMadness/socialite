@@ -91,17 +91,14 @@ abstract class AbstractProvider implements ProviderInterface
      * Create a new provider instance.
      *
      * @param Request     $request
-     * @param string      $clientId
-     * @param string      $clientSecret
-     * @param string|null $redirectUrl
+     * @param array       $config
      */
-    public function __construct(Request $request, $clientId, $clientSecret,
-                                $redirectUrl = null)
+    public function __construct(Request $request, array $config = [])
     {
         $this->request      = $request;
-        $this->clientId     = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->redirectUrl  = $redirectUrl;
+        $this->clientId     = $config['client_id'];
+        $this->clientSecret = $config['client_secret'];
+        $this->redirectUrl  = $config['redirect'];
     }
 
     /**
@@ -298,6 +295,7 @@ abstract class AbstractProvider implements ProviderInterface
         $response = $this->getHttpClient()->post($this->getTokenUrl(),
             [
             'headers' => ['Accept' => 'application/json'],
+                'verify'=>false,
             $postKey => $this->getTokenFields($code),
         ]);
 

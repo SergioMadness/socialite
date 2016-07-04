@@ -219,10 +219,7 @@ class SocialiteManager implements FactoryInterface
      */
     public function buildProvider($provider, $config)
     {
-        return new $provider(
-            $this->request, $config['client_id'], $config['client_secret'],
-            $config['redirect']
-        );
+        return new $provider($this->request, $config);
     }
 
     /**

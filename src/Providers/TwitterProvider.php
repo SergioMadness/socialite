@@ -38,7 +38,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
      *
      * @var string
      */
-    protected $authUrl = 'https://api.twitter.com/oauth/authorize';
+    protected $authUrl = 'https://api.twitter.com/oauth/authenticate';
 
     /**
      * URL to get access token
@@ -46,22 +46,6 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
      * @var string
      */
     protected $accessTokenUrl = 'https://api.twitter.com/oauth/access_token';
-
-    /**
-     * The user fields being requested.
-     *
-     * @var array
-     */
-    protected $fields = ['first_name', 'last_name', 'email', 'sex', 'verified',
-        'photo_medium',
-        'photo_big', 'mobile_phone'];
-
-    /**
-     * The scopes being requested.
-     *
-     * @var array
-     */
-//    protected $scopes = ['VALUABLE_ACCESS'];
 
     /**
      * Display the dialog in a popup view.
@@ -121,7 +105,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
     /**
      * {@inheritdoc}
      */
-    protected function getAuthUrl($state)
+    protected function getAuthUrl()
     {
         $responseParams = [];
         parse_str($this->invokeMethod($this->requestTokenUrl), $responseParams);
@@ -147,15 +131,21 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
      */
     protected function invokeMethod($url, $method = 'post', array $params = [])
     {
-        $response = $this->getHttpClient()->$method($url,
-            [
+        $requestParams = [
             'headers' => [
                 'Authorization' => $this->getOAuthHeader($url,
                     strtoupper($method), $params)
             ],
-            'form_params' => $params,
             'verify' => false,
-        ]);
+        ];
+
+        if ($method === 'get') {
+            $requestParams['query'] = $params;
+        } else {
+            $requestParams['form_params'] = $params;
+        }
+
+        $response = $this->getHttpClient()->$method($url, $requestParams);
         return $response->getBody()->getContents();
     }
 
@@ -189,9 +179,15 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $this->accessToken = $token->getToken();
-        $userInfo          = json_decode($this->invokeMethod($this->apiUrl.self::METHOD_VERIFY_CREDENTIALS,
-                'get'), true);
+        $this->accessToken       = $token->getToken();
+        $this->accessTokenSecret = $token->getAttribute('oauth_token_secret');
+        $userInfo                = json_decode($this->invokeMethod($this->apiUrl.self::METHOD_VERIFY_CREDENTIALS,
+                'get',
+                [
+                'include_email' => 'true',
+                'include_entities' => 'false',
+                'skip_status' => 'true'
+            ]), true);
 
         return $userInfo;
     }
@@ -208,7 +204,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
             'id' => $this->arrayItem($user, 'id'),
             'nickname' => $nickName,
             'name' => $name,
-            'email' => $this->arrayItem($user, 'mobile_phone'),
+            'email' => $this->arrayItem($user, 'email'),
             'avatar' => $avatar,
             'avatar_original' => str_replace('_normal', '', $avatar),
         ]);
