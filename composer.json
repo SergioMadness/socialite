@@ -21,6 +21,10 @@
         {
             "name": "overtrue",
             "email": "anzhengchao@gmail.com"
+        },
+        {
+            "name": "Sergey Zinchenko",
+            "email": "zinchenko@datalayer.ru"
         }
     ],
     "minimum-stability": "dev"
