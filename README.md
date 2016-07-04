@@ -64,7 +64,7 @@ $user->getEmail();     // "anzhengchao@gmail.com"
 
 Now we support the following sites:
 
-`facebook`, `github`, `google`, `linkedin`, `weibo`, `qq`, `wechat` and `douban`.
+`facebook`, `twitter`, `github`, `google`, `linkedin`, `weibo`, `qq`, `wechat` and `douban`.
 
 Each drive uses the same configuration keys: `client_id`, `client_secret`, `redirect`.
 
@@ -233,6 +233,7 @@ Enjoy it! :heart:
 - [微信公众平台 - OAuth文档](http://mp.weixin.qq.com/wiki/9/01f711493b5a02f24b04365ac5d8fd95.html)
 - [微信开放平台 - 网站应用微信登录开发指南](https://open.weixin.qq.com/cgi-bin/showdocument?action=dir_list&t=resource/res_list&verify=1&id=open1419316505&token=&lang=zh_CN)
 - [豆瓣 - OAuth 2.0 授权机制说明](http://developers.douban.com/wiki/?title=oauth2)
+- [Twitter API](https://dev.twitter.com/web/sign-in/implementing)
 
 # License
 
