@@ -96,9 +96,11 @@ abstract class AbstractProvider implements ProviderInterface
     public function __construct(Request $request, array $config = [])
     {
         $this->request      = $request;
-        $this->clientId     = $config['client_id'];
-        $this->clientSecret = $config['client_secret'];
-        $this->redirectUrl  = $config['redirect'];
+        $this->clientId     = isset($config['client_id']) ? $config['client_id']
+                : null;
+        $this->clientSecret = isset($config['client_secret']) ? $config['client_secret']
+                : null;
+        $this->redirectUrl  = isset($config['redirect']) ? $config['redirect'] : null;
     }
 
     /**
@@ -291,11 +293,9 @@ abstract class AbstractProvider implements ProviderInterface
     {
         $postKey = (version_compare(ClientInterface::VERSION, '6') === 1) ? 'form_params'
                 : 'body';
-
         $response = $this->getHttpClient()->post($this->getTokenUrl(),
             [
             'headers' => ['Accept' => 'application/json'],
-                'verify'=>false,
             $postKey => $this->getTokenFields($code),
         ]);
 
