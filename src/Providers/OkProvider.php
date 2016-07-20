@@ -10,7 +10,7 @@ use Overtrue\Socialite\User;
 /**
  * Class OkProvider.
  *
- * @link https://new.vk.com/dev/main [VK API]
+ * @link https://apiok.ru/ [Ok API]
  */
 class OkProvider extends AbstractProvider implements ProviderInterface
 {
@@ -22,10 +22,10 @@ class OkProvider extends AbstractProvider implements ProviderInterface
     /**
      * Get user method name
      */
-    const METHOD_GET_USER = 'users.getInfo';
+    const METHOD_GET_USER = 'users.getCurrentUser';
 
     /**
-     * The base VK URL.
+     * The base OK api URL.
      *
      * @var string
      */
@@ -36,16 +36,15 @@ class OkProvider extends AbstractProvider implements ProviderInterface
      *
      * @var array
      */
-    protected $fields = ['first_name', 'last_name', 'email', 'sex', 'verified',
-        'photo_medium',
-        'photo_big', 'mobile_phone'];
+    protected $fields = ['uid', 'first_name', 'last_name', 'name', 'gender', 'birthday',
+        'pic1024x768', 'pic_5', 'email'];
 
     /**
      * The scopes being requested.
      *
      * @var array
      */
-    protected $scopes = ['VALUABLE_ACCESS'];
+    protected $scopes = ['VALUABLE_ACCESS', 'GET_EMAIL'];
 
     /**
      * Display the dialog in a popup view.
@@ -119,7 +118,6 @@ class OkProvider extends AbstractProvider implements ProviderInterface
             'headers' => [
                 'Accept' => 'application/json',
             ],
-            'verify' => false,
         ]);
         return json_decode($response->getBody(), true);
     }
@@ -153,7 +151,6 @@ class OkProvider extends AbstractProvider implements ProviderInterface
         $response = $this->getHttpClient()->post($this->getTokenUrl(),
             [
             'query' => $this->getTokenFields($code),
-            'verify' => false,
         ]);
         return $this->parseAccessToken($response->getBody());
     }
@@ -189,8 +186,10 @@ class OkProvider extends AbstractProvider implements ProviderInterface
             $token->getToken());
 
         $userInfo = $this->invokeMethod(self::METHOD_GET_USER,
-            $token->getToken(), [
-            'uids' => $userId
+            $token->getToken(),
+            [
+            'uids' => $userId,
+            'fields' => implode(',', $this->fields)
         ]);
 
         return $userInfo;
@@ -203,14 +202,14 @@ class OkProvider extends AbstractProvider implements ProviderInterface
     {
         $firstName = $this->arrayItem($user, 'first_name');
         $lastName  = $this->arrayItem($user, 'last_name');
-        $nickName  = $this->arrayItem($user, 'screen_name');
+        $name      = $this->arrayItem($user, 'name');
         return new User([
-            'id' => $this->arrayItem($user, 'id'),
-            'nickname' => $nickName,
+            'id' => $this->arrayItem($user, 'uid'),
+            'nickname' => $name,
             'name' => $firstName.' '.$lastName,
-            'email' => $this->arrayItem($user, 'mobile_phone'),
-            'avatar' => $avatarUrl.'?type=normal',
-            'avatar_original' => $avatarUrl.'?width=1920',
+            'email' => $this->arrayItem($user, 'email'),
+            'avatar' => $this->arrayItem($user, 'pic_5'),
+            'avatar_original' => $this->arrayItem($user, 'pic1024x768'),
         ]);
     }
 
