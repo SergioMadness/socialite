@@ -17,7 +17,7 @@ class VkontakteProvider extends AbstractProvider implements ProviderInterface
     /**
      * Get profile method name
      */
-    const METHOD_GET_PROFILE = 'account.getProfileInfo';
+    const METHOD_GET_PROFILE = 'users.get';
 
     /**
      * The base VK URL.
@@ -105,7 +105,6 @@ class VkontakteProvider extends AbstractProvider implements ProviderInterface
             'headers' => [
                 'Accept' => 'application/json',
             ],
-            'verify' => false,
         ]);
         return json_decode($response->getBody(), true);
     }
@@ -122,26 +121,9 @@ class VkontakteProvider extends AbstractProvider implements ProviderInterface
         $response = $this->getHttpClient()->get($this->getTokenUrl(),
             [
             'query' => $this->getTokenFields($code),
-            'verify' => false,
         ]);
 
         return $this->parseAccessToken($response->getBody());
-    }
-
-    /**
-     * Get the POST fields for the token request.
-     *
-     * @param string $code
-     *
-     * @return array
-     */
-    protected function getTokenFields($code)
-    {
-        $result = parent::getTokenFields($code);
-
-        $result['grant_type'] = 'client_credentials';
-
-        return $result;
     }
 
     /**
@@ -157,10 +139,16 @@ class VkontakteProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        return $this->invokeMethod(self::METHOD_GET_PROFILE, $token->getToken(),
-                [
-                'fields' => implode(',', $this->fields)
+        $user            = $this->invokeMethod(self::METHOD_GET_PROFILE,
+            $token->getToken(),
+            [
+            'fields' => implode(',', $this->fields),
+            'user_ids' => $token->getAttribute('user_id')
         ]);
+        $result          = isset($user['response'][0]) ? $user['response'][0] : $user;
+        $result['email'] = $token->getAttribute('email');
+
+        return $result;
     }
 
     /**
@@ -170,15 +158,14 @@ class VkontakteProvider extends AbstractProvider implements ProviderInterface
     {
         $firstName = $this->arrayItem($user, 'first_name');
         $lastName  = $this->arrayItem($user, 'last_name');
-        $nickName  = $this->arrayItem($user, 'screen_name');
 
         return new User([
             'id' => $this->arrayItem($user, 'id'),
-            'nickname' => $nickName,
+            'nickname' => '',
             'name' => $firstName.' '.$lastName,
-            'email' => $this->arrayItem($user, 'mobile_phone'),
-            'avatar' => $avatarUrl.'?type=normal',
-            'avatar_original' => $avatarUrl.'?width=1920',
+            'email' => $this->arrayItem($user, 'email'),
+            'avatar' => $this->arrayItem($user, 'photo_big'),
+            'avatar_original' => $this->arrayItem($user, 'photo_big'),
         ]);
     }
 
