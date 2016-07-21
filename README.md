@@ -1,6 +1,6 @@
 # Socialite
 
-[![Build Status](https://travis-ci.org/overtrue/socialite.svg?branch=master)](https://travis-ci.org/overtrue/socialite)
+[![Build Status](https://travis-ci.org/SergioMadness/socialite.svg?branch=master)](https://travis-ci.org/SergioMadness/socialite)
 [![Latest Stable Version](https://poser.pugx.org/overtrue/socialite/v/stable.svg)](https://packagist.org/packages/overtrue/socialite)
 [![Latest Unstable Version](https://poser.pugx.org/overtrue/socialite/v/unstable.svg)](https://packagist.org/packages/overtrue/socialite)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/overtrue/socialite/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/overtrue/socialite/?branch=master)
@@ -64,7 +64,7 @@ $user->getEmail();     // "anzhengchao@gmail.com"
 
 Now we support the following sites:
 
-`facebook`, `twitter`, `github`, `google`, `linkedin`, `weibo`, `qq`, `wechat` and `douban`.
+`vkontakte`, `odnoklassniki`, `facebook`, `twitter`, `github`, `google`, `linkedin`, `weibo`, `qq`, `wechat` and `douban`.
 
 Each drive uses the same configuration keys: `client_id`, `client_secret`, `redirect`.
 
@@ -234,6 +234,8 @@ Enjoy it! :heart:
 - [微信开放平台 - 网站应用微信登录开发指南](https://open.weixin.qq.com/cgi-bin/showdocument?action=dir_list&t=resource/res_list&verify=1&id=open1419316505&token=&lang=zh_CN)
 - [豆瓣 - OAuth 2.0 授权机制说明](http://developers.douban.com/wiki/?title=oauth2)
 - [Twitter API](https://dev.twitter.com/web/sign-in/implementing)
+- [VK API](https://new.vk.com/dev/main)
+- [Ok API](https://apiok.ru/)
 
 # License
 
