@@ -55,6 +55,7 @@ class SocialiteManager implements FactoryInterface
         'qq' => 'QQ',
         'wechat' => 'WeChat',
         'douban' => 'Douban',
+        'vk' => 'Vkontakte',
         'twitter' => 'Twitter',
         'ok' => 'Ok'
     ];
