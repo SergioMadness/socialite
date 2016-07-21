@@ -1,7 +1,9 @@
 {
-    "name": "overtrue/socialite",
+    "name": "professionalweb/socialite",
+    "version": "1.0",
     "description": "A collection of OAuth 2 packages that extracts from laravel/socialite.",
-    "keywords": ["OAuth", "social", "login", "Weibo", "WeChat", "QQ"],
+    "keywords": ["OAuth", "social", "login", "Weibo", "WeChat", "QQ", "VK", "Ok", "Twitter"],
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "Overtrue\\Socialite\\": "src/"
@@ -21,7 +23,10 @@
         {
             "name": "overtrue",
             "email": "anzhengchao@gmail.com"
+        },
+        {
+            "name": "Sergey Zinchenko",
+            "email": "zinchenko@datalayer.ru"
         }
-    ],
-    "minimum-stability": "dev"
+    ]
 }

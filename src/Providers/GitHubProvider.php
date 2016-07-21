@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the overtrue/socialite.
  *
@@ -33,7 +32,8 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase('https://github.com/login/oauth/authorize', $state);
+        return $this->buildAuthUrlFromBase('https://github.com/login/oauth/authorize',
+                $state);
     }
 
     /**
@@ -96,11 +96,11 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id'       => $this->arrayItem($user, 'id'),
+            'id' => $this->arrayItem($user, 'id'),
             'nickname' => $this->arrayItem($user, 'login'),
-            'name'     => $this->arrayItem($user, 'name'),
-            'email'    => $this->arrayItem($user, 'email'),
-            'avatar'   => $this->arrayItem($user, 'avatar_url'),
+            'name' => $this->arrayItem($user, 'name'),
+            'email' => $this->arrayItem($user, 'email'),
+            'avatar' => $this->arrayItem($user, 'avatar_url'),
         ]);
     }
 
@@ -115,6 +115,7 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
             'headers' => [
                 'Accept' => 'application/vnd.github.v3+json',
             ],
+            'verify' => false
         ];
     }
 }

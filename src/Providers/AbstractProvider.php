@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the overtrue/socialite.
  *
@@ -92,16 +91,16 @@ abstract class AbstractProvider implements ProviderInterface
      * Create a new provider instance.
      *
      * @param Request     $request
-     * @param string      $clientId
-     * @param string      $clientSecret
-     * @param string|null $redirectUrl
+     * @param array       $config
      */
-    public function __construct(Request $request, $clientId, $clientSecret, $redirectUrl = null)
+    public function __construct(Request $request, array $config = [])
     {
         $this->request      = $request;
-        $this->clientId     = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->redirectUrl  = $redirectUrl;
+        $this->clientId     = isset($config['client_id']) ? $config['client_id']
+                : null;
+        $this->clientSecret = isset($config['client_secret']) ? $config['client_secret']
+                : null;
+        $this->redirectUrl  = isset($config['redirect']) ? $config['redirect'] : null;
     }
 
     /**
@@ -171,7 +170,8 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function buildAuthUrlFromBase($url, $state)
     {
-        return $url.'?'.http_build_query($this->getCodeFields($state), '', '&', $this->encodingType);
+        return $url.'?'.http_build_query($this->getCodeFields($state), '', '&',
+                $this->encodingType);
     }
 
     /**
@@ -184,11 +184,11 @@ abstract class AbstractProvider implements ProviderInterface
     protected function getCodeFields($state = null)
     {
         $fields = array_merge([
-            'client_id'     => $this->clientId,
-            'redirect_uri'  => $this->redirectUrl,
-            'scope'         => $this->formatScopes($this->scopes, $this->scopeSeparator),
+            'client_id' => $this->clientId,
+            'redirect_uri' => $this->redirectUrl,
+            'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
             'response_type' => 'code',
-        ], $this->parameters);
+            ], $this->parameters);
 
         if ($this->usesState()) {
             $fields['state'] = $state;
@@ -219,7 +219,7 @@ abstract class AbstractProvider implements ProviderInterface
             throw new InvalidStateException();
         }
 
-        $token = $token ?: $this->getAccessToken($this->getCode());
+        $token = $token ? : $this->getAccessToken($this->getCode());
 
         $user = $this->getUserByToken($token);
 
@@ -291,11 +291,12 @@ abstract class AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $postKey = (version_compare(ClientInterface::VERSION, '6') === 1) ? 'form_params' : 'body';
-
-        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
+        $postKey = (version_compare(ClientInterface::VERSION, '6') === 1) ? 'form_params'
+                : 'body';
+        $response = $this->getHttpClient()->post($this->getTokenUrl(),
+            [
             'headers' => ['Accept' => 'application/json'],
-            $postKey  => $this->getTokenFields($code),
+            $postKey => $this->getTokenFields($code),
         ]);
 
         return $this->parseAccessToken($response->getBody());
@@ -311,10 +312,10 @@ abstract class AbstractProvider implements ProviderInterface
     protected function getTokenFields($code)
     {
         return [
-            'client_id'     => $this->clientId,
+            'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
-            'code'          => $code,
-            'redirect_uri'  => $this->redirectUrl,
+            'code' => $code,
+            'redirect_uri' => $this->redirectUrl,
         ];
     }
 

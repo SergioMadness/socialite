@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the overtrue/socialite.
  *
@@ -48,14 +47,17 @@ class SocialiteManager implements FactoryInterface
      * @var array
      */
     protected $initialDrivers = [
-            'facebook' => 'Facebook',
-            'github'   => 'GitHub',
-            'google'   => 'Google',
-            'linkedin' => 'Linkedin',
-            'weibo'    => 'Weibo',
-            'qq'       => 'QQ',
-            'wechat'   => 'WeChat',
-            'douban'   => 'Douban',
+        'facebook' => 'Facebook',
+        'github' => 'GitHub',
+        'google' => 'Google',
+        'linkedin' => 'Linkedin',
+        'weibo' => 'Weibo',
+        'qq' => 'QQ',
+        'wechat' => 'WeChat',
+        'douban' => 'Douban',
+        'vk' => 'Vkontakte',
+        'twitter' => 'Twitter',
+        'ok' => 'Ok'
     ];
 
     /**
@@ -74,7 +76,7 @@ class SocialiteManager implements FactoryInterface
     public function __construct(array $config, Request $request = null)
     {
         $this->config  = new Config($config);
-        $this->request = $request ?: $this->createDefaultRequest();
+        $this->request = $request ? : $this->createDefaultRequest();
     }
 
     /**
@@ -110,7 +112,7 @@ class SocialiteManager implements FactoryInterface
      */
     public function driver($driver = null)
     {
-        $driver = $driver ?: $this->getDefaultDriver();
+        $driver = $driver ? : $this->getDefaultDriver();
 
         if (!isset($this->drivers[$driver])) {
             $this->drivers[$driver] = $this->createDriver($driver);
@@ -134,7 +136,8 @@ class SocialiteManager implements FactoryInterface
             $provider = $this->initialDrivers[$driver];
             $provider = __NAMESPACE__.'\\Providers\\'.$provider.'Provider';
 
-            return $this->buildProvider($provider, $this->formatConfig($this->config->get($driver)));
+            return $this->buildProvider($provider,
+                    $this->formatConfig($this->config->get($driver)));
         }
 
         if (isset($this->customCreators[$driver])) {
@@ -218,10 +221,7 @@ class SocialiteManager implements FactoryInterface
      */
     public function buildProvider($provider, $config)
     {
-        return new $provider(
-            $this->request, $config['client_id'],
-            $config['client_secret'], $config['redirect']
-        );
+        return new $provider($this->request, $config);
     }
 
     /**
@@ -234,10 +234,10 @@ class SocialiteManager implements FactoryInterface
     public function formatConfig(array $config)
     {
         return array_merge([
-            'identifier'   => $config['client_id'],
-            'secret'       => $config['client_secret'],
+            'identifier' => $config['client_id'],
+            'secret' => $config['client_secret'],
             'callback_uri' => $config['redirect'],
-        ], $config);
+            ], $config);
     }
 
     /**

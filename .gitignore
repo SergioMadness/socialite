@@ -6,3 +6,5 @@ composer.lock
 Thumbs.db
 /*.php
 sftp-config.json
+/nbproject/private/
+/nbproject
