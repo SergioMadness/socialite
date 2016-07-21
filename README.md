@@ -1,10 +1,8 @@
 # Socialite
 
 [![Build Status](https://travis-ci.org/SergioMadness/socialite.svg?branch=master)](https://travis-ci.org/SergioMadness/socialite)
-[![Latest Stable Version](https://poser.pugx.org/overtrue/socialite/v/stable.svg)](https://packagist.org/packages/overtrue/socialite)
-[![Latest Unstable Version](https://poser.pugx.org/overtrue/socialite/v/unstable.svg)](https://packagist.org/packages/overtrue/socialite)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/overtrue/socialite/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/overtrue/socialite/?branch=master)
-[![Total Downloads](https://poser.pugx.org/overtrue/socialite/downloads)](https://packagist.org/packages/overtrue/socialite)
+[![Latest Stable Version](https://poser.pugx.org/professionalweb/socialite/v/stable.svg)](https://packagist.org/packages/professionalweb/socialite)
+[![Latest Unstable Version](https://poser.pugx.org/professionalweb/socialite/v/unstable.svg)](https://packagist.org/packages/professionalweb/socialite)
 [![License](https://poser.pugx.org/overtrue/socialite/license)](https://packagist.org/packages/overtrue/socialite)
 
 Socialite is an OAuth2 Authentication tool. It is inspired by [laravel/socialite](https://github.com/laravel/socialite), You can easily use it in any PHP project.
