@@ -142,7 +142,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
         if ($method === 'get') {
             $requestParams['query'] = $params;
         } else {
-            $requestParams['form_params'] = $params;
+            $requestParams['body'] = $params;
         }
 
         $response = $this->getHttpClient()->$method($url, $requestParams);
