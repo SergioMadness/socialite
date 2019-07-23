@@ -33,7 +33,7 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
     protected function getAuthUrl($state)
     {
         return $this->buildAuthUrlFromBase('https://github.com/login/oauth/authorize',
-                $state);
+            $state);
     }
 
     /**
@@ -49,7 +49,7 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $userUrl = 'https://api.github.com/user?access_token='.$token->getToken();
+        $userUrl = 'https://api.github.com/user?access_token=' . $token->getToken();
 
         $response = $this->getHttpClient()->get(
             $userUrl, $this->getRequestOptions()
@@ -73,7 +73,7 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getEmailByToken($token)
     {
-        $emailsUrl = 'https://api.github.com/user/emails?access_token='.$token->getToken();
+        $emailsUrl = 'https://api.github.com/user/emails?access_token=' . $token->getToken();
 
         try {
             $response = $this->getHttpClient()->get(
@@ -96,11 +96,12 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id' => $this->arrayItem($user, 'id'),
+            'id'       => $this->arrayItem($user, 'id'),
+            'username' => $this->arrayItem($user, 'login'),
             'nickname' => $this->arrayItem($user, 'login'),
-            'name' => $this->arrayItem($user, 'name'),
-            'email' => $this->arrayItem($user, 'email'),
-            'avatar' => $this->arrayItem($user, 'avatar_url'),
+            'name'     => $this->arrayItem($user, 'name'),
+            'email'    => $this->arrayItem($user, 'email'),
+            'avatar'   => $this->arrayItem($user, 'avatar_url'),
         ]);
     }
 
@@ -115,7 +116,7 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
             'headers' => [
                 'Accept' => 'application/vnd.github.v3+json',
             ],
-            'verify' => false
+            'verify'  => false,
         ];
     }
 }

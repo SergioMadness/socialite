@@ -8,3 +8,4 @@ Thumbs.db
 sftp-config.json
 /nbproject/private/
 /nbproject
+.php_cs.cache

@@ -30,7 +30,7 @@ class SocialiteManager implements FactoryInterface
     /**
      * The request instance.
      *
-     * @var \Symfony\Component\HttpFoundation\Request
+     * @var Request
      */
     protected $request;
 
@@ -48,35 +48,46 @@ class SocialiteManager implements FactoryInterface
      */
     protected $initialDrivers = [
         'facebook' => 'Facebook',
-        'github' => 'GitHub',
-        'google' => 'Google',
+        'github'   => 'GitHub',
+        'google'   => 'Google',
         'linkedin' => 'Linkedin',
-        'weibo' => 'Weibo',
-        'qq' => 'QQ',
-        'wechat' => 'WeChat',
-        'douban' => 'Douban',
-        'vk' => 'Vkontakte',
-        'twitter' => 'Twitter',
-        'ok' => 'Ok'
+        'weibo'    => 'Weibo',
+        'qq'       => 'QQ',
+        'wechat'   => 'WeChat',
+        'douban'   => 'Douban',
+        'vk'       => 'Vkontakte',
+        'twitter'  => 'Twitter',
+        'ok'       => 'Ok',
+        'wework'   => 'WeWork',
+        'outlook'  => 'Outlook',
+        'douyin'   => 'DouYin',
+        'taobao'   => 'Taobao',
     ];
 
     /**
      * The array of created "drivers".
      *
-     * @var array
+     * @var ProviderInterface[]
      */
     protected $drivers = [];
 
     /**
      * SocialiteManager constructor.
      *
-     * @param array                                          $config
-     * @param \Symfony\Component\HttpFoundation\Request|null $request
+     * @param array        $config
+     * @param Request|null $request
      */
     public function __construct(array $config, Request $request = null)
     {
-        $this->config  = new Config($config);
-        $this->request = $request ? : $this->createDefaultRequest();
+        $this->config = new Config($config);
+
+        if ($this->config->has('guzzle')) {
+            Providers\AbstractProvider::setGuzzleOptions($this->config->get('guzzle'));
+        }
+
+        if ($request) {
+            $this->setRequest($request);
+        }
     }
 
     /**
@@ -94,26 +105,14 @@ class SocialiteManager implements FactoryInterface
     }
 
     /**
-     * Get the default driver name.
-     *
-     * @return string
-     */
-    public function getDefaultDriver()
-    {
-        throw new InvalidArgumentException('No Socialite driver was specified.');
-    }
-
-    /**
      * Get a driver instance.
      *
      * @param string $driver
      *
-     * @return mixed
+     * @return ProviderInterface
      */
-    public function driver($driver = null)
+    public function driver($driver)
     {
-        $driver = $driver ? : $this->getDefaultDriver();
-
         if (!isset($this->drivers[$driver])) {
             $this->drivers[$driver] = $this->createDriver($driver);
         }
@@ -122,22 +121,42 @@ class SocialiteManager implements FactoryInterface
     }
 
     /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return $this
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Request
+     */
+    public function getRequest()
+    {
+        return $this->request ?: $this->createDefaultRequest();
+    }
+
+    /**
      * Create a new driver instance.
      *
      * @param string $driver
      *
-     * @return mixed
-     *
      * @throws \InvalidArgumentException
+     *
+     * @return ProviderInterface
      */
     protected function createDriver($driver)
     {
         if (isset($this->initialDrivers[$driver])) {
             $provider = $this->initialDrivers[$driver];
-            $provider = __NAMESPACE__.'\\Providers\\'.$provider.'Provider';
+            $provider = __NAMESPACE__ . '\\Providers\\' . $provider . 'Provider';
 
             return $this->buildProvider($provider,
-                    $this->formatConfig($this->config->get($driver)));
+                $this->formatConfig($this->config->get($driver)));
         }
 
         if (isset($this->customCreators[$driver])) {
@@ -152,7 +171,7 @@ class SocialiteManager implements FactoryInterface
      *
      * @param string $driver
      *
-     * @return mixed
+     * @return ProviderInterface
      */
     protected function callCustomCreator($driver)
     {
@@ -162,7 +181,7 @@ class SocialiteManager implements FactoryInterface
     /**
      * Create default request instance.
      *
-     * @return \Symfony\Component\HttpFoundation\Request
+     * @return Request
      */
     protected function createDefaultRequest()
     {
@@ -192,23 +211,11 @@ class SocialiteManager implements FactoryInterface
     /**
      * Get all of the created "drivers".
      *
-     * @return array
+     * @return ProviderInterface[]
      */
     public function getDrivers()
     {
         return $this->drivers;
-    }
-
-    /**
-     * Get a driver instance.
-     *
-     * @param string $driver
-     *
-     * @return mixed
-     */
-    public function with($driver)
-    {
-        return $this->driver($driver);
     }
 
     /**
@@ -217,11 +224,16 @@ class SocialiteManager implements FactoryInterface
      * @param string $provider
      * @param array  $config
      *
-     * @return \Overtrue\Socialite\AbstractProvider
+     * @return ProviderInterface
      */
     public function buildProvider($provider, $config)
     {
-        return new $provider($this->request, $config);
+        return new $provider(
+            $this->getRequest(),
+            $config['client_id'],
+            $config['client_secret'],
+            $config['redirect']
+        );
     }
 
     /**
@@ -234,10 +246,10 @@ class SocialiteManager implements FactoryInterface
     public function formatConfig(array $config)
     {
         return array_merge([
-            'identifier' => $config['client_id'],
-            'secret' => $config['client_secret'],
+            'identifier'   => $config['client_id'],
+            'secret'       => $config['client_secret'],
             'callback_uri' => $config['redirect'],
-            ], $config);
+        ], $config);
     }
 
     /**
@@ -251,27 +263,5 @@ class SocialiteManager implements FactoryInterface
     public function __call($method, $parameters)
     {
         return call_user_func_array([$this->driver(), $method], $parameters);
-    }
-
-    /**
-     * Set Request instance.
-     *
-     * @param Request $request
-     */
-    public function setRequest(Request $request)
-    {
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
-     * Return the request instance.
-     *
-     * @return \Symfony\Component\HttpFoundation\Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
     }
 }

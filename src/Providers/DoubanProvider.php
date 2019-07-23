@@ -18,7 +18,7 @@ use Overtrue\Socialite\User;
 /**
  * Class DoubanProvider.
  *
- * @link http://developers.douban.com/wiki/?title=oauth2 [使用 OAuth 2.0 访问豆瓣 API]
+ * @see http://developers.douban.com/wiki/?title=oauth2 [使用 OAuth 2.0 访问豆瓣 API]
  */
 class DoubanProvider extends AbstractProvider implements ProviderInterface
 {
@@ -58,11 +58,11 @@ class DoubanProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id'       => $this->arrayItem($user, 'id'),
+            'id' => $this->arrayItem($user, 'id'),
             'nickname' => $this->arrayItem($user, 'name'),
-            'name'     => $this->arrayItem($user, 'name'),
-            'avatar'   => $this->arrayItem($user, 'large_avatar'),
-            'email'    => null,
+            'name' => $this->arrayItem($user, 'name'),
+            'avatar' => $this->arrayItem($user, 'large_avatar'),
+            'email' => null,
         ]);
     }
 

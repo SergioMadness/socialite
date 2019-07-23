@@ -18,7 +18,7 @@ use Overtrue\Socialite\User;
 /**
  * Class WeiboProvider.
  *
- * @link http://open.weibo.com/wiki/%E6%8E%88%E6%9D%83%E6%9C%BA%E5%88%B6%E8%AF%B4%E6%98%8E [OAuth 2.0 授权机制说明]
+ * @see http://open.weibo.com/wiki/%E6%8E%88%E6%9D%83%E6%9C%BA%E5%88%B6%E8%AF%B4%E6%98%8E [OAuth 2.0 授权机制说明]
  */
 class WeiboProvider extends AbstractProvider implements ProviderInterface
 {
@@ -95,7 +95,7 @@ class WeiboProvider extends AbstractProvider implements ProviderInterface
     {
         $response = $this->getHttpClient()->get($this->baseUrl.'/'.$this->version.'/users/show.json', [
             'query' => [
-                'uid'          => $token['uid'],
+                'uid' => $token['uid'],
                 'access_token' => $token->getToken(),
             ],
             'headers' => [
@@ -116,11 +116,11 @@ class WeiboProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id'       => $this->arrayItem($user, 'id'),
+            'id' => $this->arrayItem($user, 'id'),
             'nickname' => $this->arrayItem($user, 'screen_name'),
-            'name'     => $this->arrayItem($user, 'name'),
-            'email'    => $this->arrayItem($user, 'email'),
-            'avatar'   => $this->arrayItem($user, 'avatar_large'),
+            'name' => $this->arrayItem($user, 'name'),
+            'email' => $this->arrayItem($user, 'email'),
+            'avatar' => $this->arrayItem($user, 'avatar_large'),
         ]);
     }
 }

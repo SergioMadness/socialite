@@ -1,18 +1,26 @@
-# Socialite
+<h1 align="center"> Socialite</h1>
+<p align="center">
+<a href="https://travis-ci.org/overtrue/socialite"><img src="https://travis-ci.org/overtrue/socialite.svg?branch=master" alt="Build Status"></a>
+<a href="https://packagist.org/packages/overtrue/socialite"><img src="https://poser.pugx.org/overtrue/socialite/v/stable.svg" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/overtrue/socialite"><img src="https://poser.pugx.org/overtrue/socialite/v/unstable.svg" alt="Latest Unstable Version"></a>
+<a href="https://scrutinizer-ci.com/g/overtrue/socialite/build-status/master"><img src="https://scrutinizer-ci.com/g/overtrue/socialite/badges/build.png?b=master" alt="Build Status"></a>
+<a href="https://scrutinizer-ci.com/g/overtrue/socialite/?branch=master"><img src="https://scrutinizer-ci.com/g/overtrue/socialite/badges/quality-score.png?b=master" alt="Scrutinizer Code Quality"></a>
+<a href="https://scrutinizer-ci.com/g/overtrue/socialite/?branch=master"><img src="https://scrutinizer-ci.com/g/overtrue/socialite/badges/coverage.png?b=master" alt="Code Coverage"></a>
+<a href="https://packagist.org/packages/overtrue/socialite"><img src="https://poser.pugx.org/overtrue/socialite/downloads" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/overtrue/socialite"><img src="https://poser.pugx.org/overtrue/socialite/license" alt="License"></a>
+</p>
 
 [![Build Status](https://travis-ci.org/SergioMadness/socialite.svg?branch=master)](https://travis-ci.org/SergioMadness/socialite)
 [![Latest Stable Version](https://poser.pugx.org/professionalweb/socialite/v/stable.svg)](https://packagist.org/packages/professionalweb/socialite)
 [![Latest Unstable Version](https://poser.pugx.org/professionalweb/socialite/v/unstable.svg)](https://packagist.org/packages/professionalweb/socialite)
 [![License](https://poser.pugx.org/overtrue/socialite/license)](https://packagist.org/packages/overtrue/socialite)
 
-Socialite is an OAuth2 Authentication tool. It is inspired by [laravel/socialite](https://github.com/laravel/socialite), You can easily use it in any PHP project.
-
-For Laravel 5: [overtrue/laravel-socialite](https://github.com/overtrue/laravel-socialite)
+<p align="center">Socialite is an OAuth2 Authentication tool. It is inspired by <a href="https://github.com/laravel/socialite">laravel/socialite</a>, You can easily use it in any PHP project.</p>
 
 # Requirement
 
 ```
-PHP >= 5.4
+PHP >= 7.0
 ```
 # Installation
 
@@ -22,10 +30,13 @@ $ composer require "professionalweb/socialite:*"
 
 # Usage
 
+For Laravel 5: [overtrue/laravel-socialite](https://github.com/overtrue/laravel-socialite)
+
 `authorize.php`:
 
 ```php
 <?php
+
 use Overtrue\Socialite\SocialiteManager;
 
 $config = [
@@ -48,13 +59,26 @@ echo $response;// or $response->send();
 ```php
 <?php
 
-// ...
+use Overtrue\Socialite\SocialiteManager;
+
+$config = [
+    'github' => [
+        'client_id' => 'your-app-id',
+        'client_secret' => 'your-app-secret',
+        'redirect' => 'http://localhost/socialite/callback.php',
+    ],
+];
+
+$socialite = new SocialiteManager($config);
+
 $user = $socialite->driver('github')->user();
 
 $user->getId();        // 1472352
 $user->getNickname();  // "overtrue"
+$user->getUsername();  // "overtrue"
 $user->getName();      // "安正超"
 $user->getEmail();     // "anzhengchao@gmail.com"
+$user->getProviderName(); // GitHub
 ...
 ```
 
@@ -62,11 +86,11 @@ $user->getEmail();     // "anzhengchao@gmail.com"
 
 Now we support the following sites:
 
-`vkontakte`, `odnoklassniki`, `facebook`, `twitter`, `github`, `google`, `linkedin`, `weibo`, `qq`, `wechat` and `douban`.
+`vkontakte`, `odnoklassniki`, `facebook`, `twitter`, `outlook`, `github`, `google`, `linkedin`, `weibo`, `qq`, `wechat`, `taobao`, `douyin` and `douban`.
 
-Each drive uses the same configuration keys: `client_id`, `client_secret`, `redirect`.
+Each driver uses the same configuration keys: `client_id`, `client_secret`, `redirect`.
 
-example:
+Example:
 ```
 ...
   'weibo' => [
@@ -89,7 +113,7 @@ $response = $socialite->driver('github')
 
 ### Redirect URL
 
-You may alse want to dynamic set `redirect`，you can use the following methods to change the `redirect` URL:
+You may also want to dynamicly set `redirect`，you can use the following methods to change the `redirect` URL:
 
 ```php
 $socialite->redirect($url);
@@ -145,7 +169,7 @@ $user = $socialite->driver('weibo')->user();
 }
 ```
 
-You can fetch the user attribute as a array key like this:
+You can fetch the user attribute as a array keys like these:
 
 ```php
 $user['id'];        // 1472352
@@ -155,7 +179,7 @@ $user['email'];     // "anzhengchao@gmail.com"
 ...
 ```
 
-Or using method:
+Or using the method:
 
 ```php
 $user->getId();
@@ -165,6 +189,7 @@ $user->getEmail();
 $user->getAvatar();
 $user->getOriginal();
 $user->getToken();// or $user->getAccessToken()
+$user->getProviderName(); // GitHub/Google/Facebook...
 ```
 
 #### Get original response from OAuth API
@@ -186,7 +211,7 @@ $user = $socialite->user($accessToken);
 
 ### Custom Session or Request instance.
 
-You can set the request with your custom `Request` instance which instanceof `Symfony\Component\HttpFoundation\Request`.
+You can set the request with your custom `Request` instance which instanceof `Symfony\Component\HttpFoundation\Request` before you call `driver` method.
 
 
 ```php
@@ -202,7 +227,7 @@ Or set request to `SocialiteManager` instance:
 $socialite->setRequest($request);
 ```
 
-You can get the request from `SocialiteManager` instance by `getRequest()`:
+You can get the request from the `SocialiteManager` instance by `getRequest()`:
 
 ```php
 $request = $socialite->getRequest();
@@ -210,14 +235,14 @@ $request = $socialite->getRequest();
 
 #### Set custom session manager.
 
-By default, the `SocialiteManager` use `Symfony\Component\HttpFoundation\Session\Session` instance as session manager, you can change it as following lines:
+By default, the `SocialiteManager` uses the `Symfony\Component\HttpFoundation\Session\Session` instance as session manager, you can change it as follows:
 
 ```php
-$session = new YouCustomSessionManager();
+$session = new YourCustomSessionManager();
 $socialite->getRequest()->setSession($session);
 ```
 
-> Your custom session manager must be implement the `[Symfony\Component\HttpFoundation\Session\SessionInterface](http://api.symfony.com/3.0/Symfony/Component/HttpFoundation/Session/SessionInterface.html)`.
+> Your custom session manager must be implement the [`Symfony\Component\HttpFoundation\Session\SessionInterface`](http://api.symfony.com/3.0/Symfony/Component/HttpFoundation/Session/SessionInterface.html).
 
 Enjoy it! :heart:
 
@@ -230,6 +255,7 @@ Enjoy it! :heart:
 - [QQ - OAuth 2.0 登录QQ](http://wiki.connect.qq.com/oauth2-0%E7%AE%80%E4%BB%8B)
 - [微信公众平台 - OAuth文档](http://mp.weixin.qq.com/wiki/9/01f711493b5a02f24b04365ac5d8fd95.html)
 - [微信开放平台 - 网站应用微信登录开发指南](https://open.weixin.qq.com/cgi-bin/showdocument?action=dir_list&t=resource/res_list&verify=1&id=open1419316505&token=&lang=zh_CN)
+- [微信开放平台 - 代公众号发起网页授权](https://open.weixin.qq.com/cgi-bin/showdocument?action=dir_list&t=resource/res_list&verify=1&id=open1419318590&token=&lang=zh_CN)
 - [豆瓣 - OAuth 2.0 授权机制说明](http://developers.douban.com/wiki/?title=oauth2)
 - [Twitter API](https://dev.twitter.com/web/sign-in/implementing)
 - [VK API](https://new.vk.com/dev/main)

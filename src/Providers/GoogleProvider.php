@@ -19,7 +19,7 @@ use Overtrue\Socialite\User;
 /**
  * Class GoogleProvider.
  *
- * @link https://developers.google.com/identity/protocols/OpenIDConnect [OpenID Connect]
+ * @see https://developers.google.com/identity/protocols/OpenIDConnect [OpenID Connect]
  */
 class GoogleProvider extends AbstractProvider implements ProviderInterface
 {
@@ -36,9 +36,8 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
      * @var array
      */
     protected $scopes = [
-        'https://www.googleapis.com/auth/plus.me',
-        'https://www.googleapis.com/auth/plus.login',
-        'https://www.googleapis.com/auth/plus.profile.emails.read',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile',
     ];
 
     /**
@@ -46,7 +45,7 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase('https://accounts.google.com/o/oauth2/auth', $state);
+        return $this->buildAuthUrlFromBase('https://accounts.google.com/o/oauth2/v2/auth', $state);
     }
 
     /**
@@ -54,7 +53,7 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return 'https://accounts.google.com/o/oauth2/token';
+        return 'https://www.googleapis.com/oauth2/v4/token';
     }
 
     /**
@@ -66,7 +65,7 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $postKey = (version_compare(ClientInterface::VERSION, '6') === 1) ? 'form_params' : 'body';
+        $postKey = (1 === version_compare(ClientInterface::VERSION, '6')) ? 'form_params' : 'body';
 
         $response = $this->getHttpClient()->post($this->getTokenUrl(), [
             $postKey => $this->getTokenFields($code),
@@ -92,12 +91,9 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = $this->getHttpClient()->get('https://www.googleapis.com/plus/v1/people/me?', [
-            'query' => [
-                'prettyPrint' => 'false',
-            ],
+        $response = $this->getHttpClient()->get('https://www.googleapis.com/userinfo/v2/me', [
             'headers' => [
-                'Accept'        => 'application/json',
+                'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token->getToken(),
             ],
         ]);
@@ -111,11 +107,12 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id'       => $this->arrayItem($user, 'id'),
-            'nickname' => $this->arrayItem($user, 'nickname'),
-            'name'     => $this->arrayItem($user, 'displayName'),
-            'email'    => $this->arrayItem($user, 'emails.0.value'),
-            'avatar'   => $this->arrayItem($user, 'image.url'),
+            'id' => $this->arrayItem($user, 'id'),
+            'username' => $this->arrayItem($user, 'email'),
+            'nickname' => $this->arrayItem($user, 'name'),
+            'name' => $this->arrayItem($user, 'name'),
+            'email' => $this->arrayItem($user, 'email'),
+            'avatar' => $this->arrayItem($user, 'picture'),
         ]);
     }
 }

@@ -11,7 +11,6 @@
 
 namespace Overtrue\Socialite\Providers;
 
-use Overtrue\Socialite\AccessToken;
 use Overtrue\Socialite\AccessTokenInterface;
 use Overtrue\Socialite\ProviderInterface;
 use Overtrue\Socialite\User;
@@ -19,7 +18,7 @@ use Overtrue\Socialite\User;
 /**
  * Class QQProvider.
  *
- * @link http://wiki.connect.qq.com/oauth2-0%E7%AE%80%E4%BB%8B [QQ - OAuth 2.0 登录QQ]
+ * @see http://wiki.connect.qq.com/oauth2-0%E7%AE%80%E4%BB%8B [QQ - OAuth 2.0 登录QQ]
  */
 class QQProvider extends AbstractProvider implements ProviderInterface
 {
@@ -36,6 +35,20 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      * @var string
      */
     protected $openId;
+
+    /**
+     * get token(openid) with unionid.
+     *
+     * @var bool
+     */
+    protected $withUnionId = false;
+
+    /**
+     * User unionid.
+     *
+     * @var string
+     */
+    protected $unionId;
 
     /**
      * The scopes being requested.
@@ -112,7 +125,17 @@ class QQProvider extends AbstractProvider implements ProviderInterface
     {
         parse_str($body, $token);
 
-        return new AccessToken($token);
+        return parent::parseAccessToken($token);
+    }
+
+    /**
+     * @return self
+     */
+    public function withUnionId()
+    {
+        $this->withUnionId = true;
+
+        return $this;
     }
 
     /**
@@ -124,13 +147,18 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = $this->getHttpClient()->get($this->baseUrl.'/oauth2.0/me?access_token='.$token->getToken());
+        $url = $this->baseUrl.'/oauth2.0/me?access_token='.$token->getToken();
+        $this->withUnionId && $url .= '&unionid=1';
 
-        $this->openId = json_decode($this->removeCallback($response->getBody()->getContents()), true)['openid'];
+        $response = $this->getHttpClient()->get($url);
+
+        $me = json_decode($this->removeCallback($response->getBody()->getContents()), true);
+        $this->openId = $me['openid'];
+        $this->unionId = isset($me['unionid']) ? $me['unionid'] : '';
 
         $queries = [
-            'access_token'       => $token->getToken(),
-            'openid'             => $this->openId,
+            'access_token' => $token->getToken(),
+            'openid' => $this->openId,
             'oauth_consumer_key' => $this->clientId,
         ];
 
@@ -149,11 +177,12 @@ class QQProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id'       => $this->openId,
+            'id' => $this->openId,
+            'unionid' => $this->unionId,
             'nickname' => $this->arrayItem($user, 'nickname'),
-            'name'     => $this->arrayItem($user, 'nickname'),
-            'email'    => $this->arrayItem($user, 'email'),
-            'avatar'   => $this->arrayItem($user, 'figureurl_qq_2'),
+            'name' => $this->arrayItem($user, 'nickname'),
+            'email' => $this->arrayItem($user, 'email'),
+            'avatar' => $this->arrayItem($user, 'figureurl_qq_2'),
         ]);
     }
 
@@ -166,9 +195,9 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      */
     protected function removeCallback($response)
     {
-        if (strpos($response, 'callback') !== false) {
-            $lpos     = strpos($response, '(');
-            $rpos     = strrpos($response, ')');
+        if (false !== strpos($response, 'callback')) {
+            $lpos = strpos($response, '(');
+            $rpos = strrpos($response, ')');
             $response = substr($response, $lpos + 1, $rpos - $lpos - 1);
         }
 

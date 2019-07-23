@@ -19,7 +19,7 @@ use Overtrue\Socialite\User;
 /**
  * Class FacebookProvider.
  *
- * @link https://developers.facebook.com/docs/graph-api [Facebook - Graph API]
+ * @see https://developers.facebook.com/docs/graph-api [Facebook - Graph API]
  */
 class FacebookProvider extends AbstractProvider implements ProviderInterface
 {
@@ -35,7 +35,7 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      *
      * @var string
      */
-    protected $version = 'v2.5';
+    protected $version = 'v3.3';
 
     /**
      * The user fields being requested.
@@ -63,7 +63,7 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase('https://www.facebook.com/'.$this->version.'/dialog/oauth', $state);
+        return $this->buildAuthUrlFromBase('https://www.facebook.com/' . $this->version . '/dialog/oauth', $state);
     }
 
     /**
@@ -71,7 +71,7 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return $this->graphUrl.'/oauth/access_token';
+        return $this->graphUrl . '/oauth/access_token';
     }
 
     /**
@@ -107,7 +107,7 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
     {
         $appSecretProof = hash_hmac('sha256', $token->getToken(), $this->clientSecret);
 
-        $response = $this->getHttpClient()->get($this->graphUrl.'/'.$this->version.'/me?access_token='.$token.'&appsecret_proof='.$appSecretProof.'&fields='.implode(',', $this->fields), [
+        $response = $this->getHttpClient()->get($this->graphUrl . '/' . $this->version . '/me?access_token=' . $token . '&appsecret_proof=' . $appSecretProof . '&fields=' . implode(',', $this->fields), [
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -121,18 +121,18 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      */
     protected function mapUserToObject(array $user)
     {
-        $avatarUrl = $this->graphUrl.'/'.$this->version.'/'.$user['id'].'/picture';
+        $avatarUrl = $this->graphUrl . '/' . $this->version . '/' . $user['id'] . '/picture';
 
         $firstName = $this->arrayItem($user, 'first_name');
-        $lastName  = $this->arrayItem($user, 'last_name');
+        $lastName = $this->arrayItem($user, 'last_name');
 
         return new User([
             'id'              => $this->arrayItem($user, 'id'),
             'nickname'        => null,
-            'name'            => $firstName.' '.$lastName,
+            'name'            => $firstName . ' ' . $lastName,
             'email'           => $this->arrayItem($user, 'email'),
-            'avatar'          => $avatarUrl.'?type=normal',
-            'avatar_original' => $avatarUrl.'?width=1920',
+            'avatar'          => $avatarUrl . '?type=normal',
+            'avatar_original' => $avatarUrl . '?width=1920',
         ]);
     }
 
